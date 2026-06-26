@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PHAROS v2.1</title>
+<style>
+:root {
+--bg: #040b18;
+--panel: #081325;
+--panel-2: #0b1830;
+--panel-3: #0d1d38;
+--line: rgba(87, 132, 214, 0.18);
+--line-strong: rgba(96, 157, 255, 0.26);
+--text: #edf4ff;
+--muted: #93abd3;
+--blue: #4d9dff;
+--green: #39d98a;
+--yellow: #ffc857;
+--orange: #ff9f43;
+--red: #ff5c6a;
+--shadow: 0 14px 36px rgba(0, 0, 0, 0.34);
+}
+
+* { box-sizing: border-box; }
+
+body {
+margin: 0;
+font-family: Inter, Arial, sans-serif;
+color: var(--text);
+background:
+radial-gradient(circle at top, rgba(35, 88, 170, 0.14), transparent 36%),
+linear-gradient(180deg, #06101e 0%, #030814 100%);
+min-height: 100vh;
+}
+
+.topbar {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 14px 24px;
+border-bottom: 1px solid rgba(255,255,255,0.06);
+background: rgba(5, 11, 24, 0.92);
+position: sticky;
+top: 0;
+z-index: 20;
+backdrop-filter: blur(10px);
+}
+
+.brand {
+display: flex;
+align-items: center;
+gap: 14px;
+font-weight: 800;
+min-width: 0;
+}
+
+.brand .logo {
+width: 34px;
+height: 34px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+flex: 0 0 34px;
+border-radius: 10px;
+background:
+linear-gradient(180deg, rgba(255, 159, 67, 0.12), rgba(255, 159, 67, 0.04)),
+linear-gradient(180deg, rgba(15, 31, 58, 0.96), rgba(9, 19, 36, 0.96));
+border: 1px solid rgba(255, 159, 67, 0.22);
+box-shadow:
+inset 0 1px 0 rgba(255,255,255,0.05),
+0 8px 18px rgba(0, 0, 0, 0.22);
+}
+
+.brand .logo svg {
+width: 20px;
+height: 20px;
+display: block;
+filter: drop-shadow(0 0 8px rgba(255, 159, 67, 0.22));
+}
+
+.brand .name {
+color: var(--blue);
+font-size: 1.95rem;
+font-weight: 900;
+letter-spacing: 0.06em;
+line-height: 1;
+text-transform: uppercase;
+background: linear-gradient(180deg, #9fcbff 0%, #63aeff 52%, #3d8fff 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+text-shadow: 0 0 18px rgba(77, 157, 255, 0.12);
+}
+
+.brand .sub { color: var(--muted); font-weight: 500; font-size: 0.95rem; }
+.author { color: #cbd8ef; font-size: 0.9rem; }
+
+.container {
+width: min(1280px, calc(100% - 28px));
+margin: 20px auto 32px;
+}
+
+.hero, .panel {
+background: linear-gradient(180deg, rgba(10, 22, 40, 0.98), rgba(7, 16, 30, 0.98));
+border: 1px solid var(--line);
+border-radius: 20px;
+box-shadow: var(--shadow);
+}
+
+.hero {
+padding: 24px;
+margin-bottom: 18px;
+}
+
+.hero h1 {
+margin: 0 0 8px;
+font-size: 2.1rem;
+line-height: 1.1;
+}
+
+.hero p {
+margin: 0 0 18px;
+color: var(--muted);
+line-height: 1.5;
+max-width: 920px;
+}
+
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(5, minmax(0, 1fr));
+gap: 12px;
+margin-bottom: 14px;
+}
+
+.stat-card {
+background: rgba(8, 16, 31, 0.82);
+border: 1px solid var(--line);
+border-radius: 14px;
+padding: 14px;
+min-height: 92px;
+min-width: 0;
+}
+
+.label {
+color: var(--muted);
+text-transform: uppercase;
+font-size: 0.84rem;
+letter-spacing: 0.35px;
+}
+
+.value {
+margin-top: 8px;
+font-size: 2rem;
+font-weight: 800;
+line-height: 1;
+}
+
+.stat-low .value { color: var(--green); }
+.stat-medium .value { color: var(--yellow); }
+.stat-high .value { color: var(--orange); }
+.stat-critical .value { color: var(--red); }
+
+.actions {
+background: rgba(8, 16, 31, 0.82);
+border: 1px solid var(--line);
+border-radius: 16px;
+padding: 16px;
+}
+
+.actions h3 {
+margin: 0 0 12px;
+color: var(--blue);
+font-size: 1.35rem;
+}
+
+.btn-row {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+margin-bottom: 12px;
+}
+
+button {
+border: 1px solid #356fbe;
+background: #102543;
+color: #dce9ff;
+padding: 10px 14px;
+border-radius: 10px;
+cursor: pointer;
+font-weight: 700;
+transition: .18s ease;
+}
+
+button:hover {
+background: #17345d;
+transform: translateY(-1px);
+}
+
+.meta, .status-line {
+color: #c3d1ea;
+line-height: 1.45;
+font-size: 0.94rem;
+}
+
+.tabs {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+margin: 14px 0 18px;
+}
+
+.tab-btn {
+background: #0d1b30;
+border-color: rgba(91, 143, 220, 0.26);
+border-radius: 9px;
+padding: 9px 14px;
+font-size: 0.9rem;
+}
+
+.tab-btn.active {
+background: #173053;
+color: var(--blue);
+box-shadow: inset 0 0 0 1px rgba(95, 165, 255, 0.12);
+}
+
+.panel {
+display: none;
+padding: 16px;
+margin-bottom: 18px;
+}
+
+.panel.active { display: block; }
+
+.panel h2 {
+margin: 0 0 14px;
+color: var(--blue);
+font-size: 1.55rem;
+}
+
+.content-grid {
+display: grid;
+grid-template-columns: minmax(320px, 360px) minmax(0, 1fr);
+gap: 16px;
+align-items: start;
+}
+
+.analysis-list {
+display: grid;
+gap: 10px;
+min-width: 0;
+}
+
+.analysis-item {
+background: linear-gradient(180deg, rgba(10, 20, 37, 0.98), rgba(7, 15, 29, 0.98));
+border: 1px solid rgba(88, 132, 206, 0.14);
+border-radius: 12px;
+padding: 12px;
+cursor: pointer;
+transition: .18s ease;
+width: 100%;
+min-width: 0;
+overflow: hidden;
+}
+
+.analysis-item:hover {
+border-color: rgba(97, 155, 241, 0.32);
+background: linear-gradient(180deg, rgba(12, 25, 45, 0.98), rgba(8, 17, 32, 0.98));
+transform: translateY(-1px);
+}
+
+.analysis-item.active {
+border-color: rgba(104, 170, 255, 0.5);
+box-shadow: inset 0 0 0 1px rgba(104, 170, 255, 0.10);
+}
+
+.analysis-top {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+gap: 10px;
+margin-bottom: 8px;
+min-width: 0;
+}
+
+.analysis-main {
+min-width: 0;
+flex: 1 1 auto;
+}
+
+.subject {
+font-weight: 800;
+font-size: 0.97rem;
+line-height: 1.32;
+color: #f3f7ff;
+overflow-wrap: anywhere;
+word-break: break-word;
+}
+
+.from {
+color: var(--muted);
+margin-top: 4px;
+font-size: 0.9rem;
+overflow-wrap: anywhere;
+word-break: break-word;
+}
+
+.analysis-meta {
+color: #c8d6ee;
+font-size: 0.84rem;
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+line-height: 1.35;
+min-width: 0;
+}
+
+.severity-pill {
+flex: 0 0 auto;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+padding: 4px 10px;
+min-height: 24px;
+border-radius: 999px;
+font-size: 0.7rem;
+font-weight: 900;
+letter-spacing: 0.3px;
+text-transform: uppercase;
+white-space: nowrap;
+align-self: flex-start;
+border: 1px solid transparent;
+}
+
+.severity-low {
+color: #9af5c1;
+background: rgba(57, 217, 138, 0.10);
+border-color: rgba(57, 217, 138, 0.28);
+}
+
+.severity-medium {
+color: #ffd979;
+background: rgba(255, 200, 87, 0.10);
+border-color: rgba(255, 200, 87, 0.28);
+}
+
+.severity-high {
+color: #ffb467;
+background: rgba(255, 159, 67, 0.10);
+border-color: rgba(255, 159, 67, 0.28);
+}
+
+.severity-critical {
+color: #ff8d97;
+background: rgba(255, 92, 106, 0.10);
+border-color: rgba(255, 92, 106, 0.28);
+}
+
+.detail-box {
+background: linear-gradient(180deg, rgba(10, 22, 40, 0.98), rgba(7, 16, 30, 0.98));
+border: 1px solid var(--line);
+border-radius: 16px;
+padding: 16px;
+min-height: 560px;
+position: sticky;
+top: 76px;
+width: 100%;
+min-width: 0;
+overflow: hidden;
+}
+
+.detail-title {
+margin: 0 0 12px;
+color: var(--blue);
+font-size: 1.15rem;
+font-weight: 800;
+}
+
+.detail-empty {
+color: var(--muted);
+line-height: 1.55;
+padding: 6px 2px;
+}
+
+.summary-banner {
+display: grid;
+grid-template-columns: minmax(0, 1fr) auto;
+gap: 12px;
+align-items: stretch;
+border: 1px solid rgba(255, 92, 106, 0.28);
+border-left: 4px solid var(--red);
+background: linear-gradient(90deg, rgba(255, 92, 106, 0.08), rgba(255, 92, 106, 0.02));
+border-radius: 16px;
+padding: 12px 14px;
+margin-bottom: 14px;
+width: 100%;
+min-width: 0;
+}
+
+.summary-banner.low {
+border-color: rgba(57, 217, 138, 0.28);
+border-left-color: var(--green);
+background: linear-gradient(90deg, rgba(57, 217, 138, 0.08), rgba(57, 217, 138, 0.02));
+}
+
+.summary-banner.medium {
+border-color: rgba(255, 200, 87, 0.28);
+border-left-color: var(--yellow);
+background: linear-gradient(90deg, rgba(255, 200, 87, 0.08), rgba(255, 200, 87, 0.02));
+}
+
+.summary-banner.high {
+border-color: rgba(255, 159, 67, 0.28);
+border-left-color: var(--orange);
+background: linear-gradient(90deg, rgba(255, 159, 67, 0.08), rgba(255, 159, 67, 0.02));
+}
+
+.summary-main {
+display: flex;
+align-items: center;
+gap: 12px;
+min-width: 0;
+}
+
+.score-box {
+min-width: 92px;
+width: 92px;
+height: 64px;
+flex: 0 0 92px;
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2.05rem;
+font-weight: 900;
+line-height: 1;
+background: rgba(255, 92, 106, 0.12);
+color: var(--red);
+border: 1px solid rgba(255, 92, 106, 0.18);
+}
+
+.summary-banner.low .score-box {
+color: var(--green);
+background: rgba(57, 217, 138, 0.12);
+border-color: rgba(57, 217, 138, 0.18);
+}
+
+.summary-banner.medium .score-box {
+color: var(--yellow);
+background: rgba(255, 200, 87, 0.12);
+border-color: rgba(255, 200, 87, 0.18);
+}
+
+.summary-banner.high .score-box {
+color: var(--orange);
+background: rgba(255, 159, 67, 0.12);
+border-color: rgba(255, 159, 67, 0.18);
+}
+
+.summary-text {
+min-width: 0;
+}
+
+.summary-level {
+font-size: 1.05rem;
+font-weight: 900;
+color: #ff8d97;
+text-transform: uppercase;
+margin-bottom: 4px;
+}
+
+.summary-banner.low .summary-level { color: #9af5c1; }
+.summary-banner.medium .summary-level { color: #ffd979; }
+.summary-banner.high .summary-level { color: #ffb467; }
+
+.summary-verdict {
+font-size: 0.95rem;
+color: #dce8ff;
+line-height: 1.45;
+overflow-wrap: anywhere;
+word-break: break-word;
+}
+
+.score-submeta {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+margin-top: 8px;
+}
+
+.score-mini {
+display: inline-flex;
+align-items: center;
+padding: 5px 10px;
+border-radius: 999px;
+font-size: 0.76rem;
+font-weight: 700;
+background: rgba(255,255,255,0.05);
+border: 1px solid rgba(255,255,255,0.08);
+color: #cfe0ff;
+}
+
+.mini-tabs {
+display: flex;
+flex-wrap: wrap;
+gap: 12px;
+padding: 0 4px 10px;
+margin: 0 0 14px;
+border-bottom: 1px solid rgba(85, 132, 206, 0.16);
+}
+
+.mini-tab {
+color: #90a8d0;
+font-size: 0.82rem;
+font-weight: 800;
+position: relative;
+padding: 9px 14px;
+border-radius: 999px;
+border: 1px solid rgba(91, 143, 220, 0.16);
+background: rgba(13, 27, 48, 0.78);
+cursor: pointer;
+user-select: none;
+transition: .18s ease;
+}
+
+.mini-tab:hover {
+color: #b8d2ff;
+background: rgba(23, 48, 83, 0.88);
+border-color: rgba(95, 165, 255, 0.22);
+}
+
+.mini-tab.active {
+color: var(--text);
+background: #173053;
+border-color: rgba(95, 165, 255, 0.32);
+box-shadow: inset 0 0 0 1px rgba(95, 165, 255, 0.10);
+}
+
+.detail-sections {
+width: 100%;
+}
+
+.detail-section {
+display: none;
+}
+
+.detail-section.active {
+display: block;
+}
+
+.detail-grid {
+display: grid;
+grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.7fr);
+gap: 14px;
+align-items: start;
+width: 100%;
+min-width: 0;
+}
+
+.section-card {
+border: 1px solid var(--line);
+background: rgba(9, 19, 35, 0.62);
+border-radius: 14px;
+padding: 14px;
+margin-bottom: 14px;
+width: 100%;
+min-width: 0;
+overflow: hidden;
+}
+
+.section-card h4 {
+margin: 0 0 12px;
+color: #69aefe;
+font-size: 1rem;
+}
+
+.kv-grid {
+display: grid;
+grid-template-columns: 130px minmax(0, 1fr);
+gap: 8px 12px;
+align-items: start;
+width: 100%;
+}
+
+.kv-label {
+color: var(--muted);
+font-size: 0.9rem;
+font-weight: 700;
+min-width: 0;
+}
+
+.kv-value {
+color: #e8f0ff;
+font-size: 0.9rem;
+line-height: 1.5;
+min-width: 0;
+overflow-wrap: anywhere;
+word-break: break-word;
+}
+
+.auth-box {
+display: grid;
+gap: 8px;
+margin-bottom: 12px;
+min-width: 0;
+}
+
+.auth-pill {
+display: inline-flex;
+align-items: center;
+padding: 5px 10px;
+border-radius: 999px;
+font-size: 0.75rem;
+font-weight: 800;
+width: fit-content;
+border: 1px solid transparent;
+max-width: 100%;
+}
+
+.auth-pass {
+color: #9af5c1;
+background: rgba(57, 217, 138, 0.10);
+border-color: rgba(57, 217, 138, 0.24);
+}
+
+.auth-none {
+color: #ffd979;
+background: rgba(255, 200, 87, 0.10);
+border-color: rgba(255, 200, 87, 0.24);
+}
+
+.auth-fail {
+color: #ff98a1;
+background: rgba(255, 92, 106, 0.10);
+border-color: rgba(255, 92, 106, 0.24);
+}
+
+.auth-help {
+color: var(--muted);
+font-size: 0.88rem;
+line-height: 1.55;
+overflow-wrap: anywhere;
+word-break: break-word;
+}
+
+.chips {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+width: 100%;
+min-width: 0;
+}
+
+.chip {
+padding: 6px 10px;
+border-radius: 999px;
+background: rgba(78, 163, 255, 0.10);
+border: 1px solid rgba(78, 163, 255, 0.18);
+color: #dbe8ff;
+font-size: 0.84rem;
+line-height: 1.35;
+max-width: 100%;
+overflow-wrap: anywhere;
+word-break: break-word;
+}
+
+.simple-list {
+margin: 0;
+padding-left: 18px;
+color: #edf3ff;
+min-width: 0;
+}
+
+.simple-list li {
+margin-bottom: 6px;
+line-height: 1.45;
+overflow-wrap: anywhere;
+word-break: break-word;
+}
+
+.manual-grid {
+display: grid;
+grid-template-columns: 360px minmax(0, 1fr);
+gap: 16px;
+align-items: start;
+}
+
+.upload-box, .result-box {
+background: rgba(8, 17, 31, 0.65);
+border: 1px solid var(--line);
+border-radius: 16px;
+padding: 16px;
+min-width: 0;
+}
+
+.upload-box h3, .result-box h3 {
+margin: 0 0 10px;
+color: var(--blue);
+font-size: 1.25rem;
+}
+
+.upload-drop {
+border: 2px dashed rgba(91, 143, 220, 0.30);
+border-radius: 14px;
+padding: 20px;
+text-align: center;
+}
+
+input[type="file"] {
+color: #dbe6fb;
+width: 100%;
+margin: 10px 0 12px;
+}
+
+.feedback-actions {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+margin: 6px 0 14px;
+}
+
+.feedback-btn.ok {
+border-color: rgba(57, 217, 138, 0.30);
+}
+
+.feedback-btn.warn {
+border-color: rgba(255, 200, 87, 0.30);
+}
+
+.feedback-btn.danger {
+border-color: rgba(255, 92, 106, 0.30);
+}
+
+.preview-btn {
+border: 1px solid rgba(91, 143, 220, 0.30);
+background: #102543;
+color: #dce9ff;
+padding: 8px 12px;
+border-radius: 10px;
+cursor: pointer;
+font-weight: 700;
+}
+
+.preview-note {
+color: var(--muted);
+font-size: 0.9rem;
+line-height: 1.45;
+}
+
+.preview-modal {
+position: fixed;
+inset: 0;
+background: rgba(2, 7, 15, 0.78);
+display: none;
+align-items: center;
+justify-content: center;
+padding: 18px;
+z-index: 1200;
+}
+
+.preview-modal.open {
+display: flex;
+}
+
+.preview-dialog {
+width: min(1180px, 100%);
+height: min(88vh, 920px);
+background: linear-gradient(180deg, rgba(10, 22, 40, 0.98), rgba(7, 16, 30, 0.98));
+border: 1px solid var(--line);
+border-radius: 18px;
+box-shadow: var(--shadow);
+overflow: hidden;
+display: grid;
+grid-template-rows: auto 1fr;
+}
+
+.preview-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 12px;
+padding: 14px 16px;
+border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.preview-title {
+color: var(--blue);
+font-weight: 800;
+font-size: 1rem;
+overflow-wrap: anywhere;
+word-break: break-word;
+}
+
+.preview-body {
+background: #050d1b;
+overflow: auto;
+display: grid;
+place-items: center;
+}
+
+.preview-image {
+display: block;
+max-width: 100%;
+max-height: calc(88vh - 80px);
+object-fit: contain;
+}
+
+.preview-frame {
+display: block;
+width: 100%;
+height: 100%;
+border: 0;
+background: #07111f;
+}
+
+.redirect-card {
+border: 1px solid var(--line);
+background: rgba(9, 19, 35, 0.62);
+border-radius: 14px;
+padding: 12px;
+margin-bottom: 12px;
+}
+
+.redirect-title {
+font-weight: 800;
+color: #eaf2ff;
+margin-bottom: 8px;
+overflow-wrap: anywhere;
+word-break: break-word;
+}
+
+.redirect-meta {
+color: #cddcff;
+font-size: 0.9rem;
+line-height: 1.5;
+overflow-wrap: anywhere;
+word-break: break-word;
+}
+
+.empty { color: var(--muted); }
+
+@media (max-width: 1180px) {
+.detail-grid {
+grid-template-columns: 1fr;
+}
+
+.detail-box {
+position: static;
+}
+}
+
+@media (max-width: 1120px) {
+.stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.manual-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 980px) {
+.content-grid {
+grid-template-columns: 1fr;
+}
+
+.detail-box {
+position: static;
+}
+}
+
+@media (max-width: 640px) {
+.container { width: min(100% - 14px, 100%); }
+.hero { padding: 18px; }
+.hero h1 { font-size: 1.72rem; }
+.stats-grid { grid-template-columns: 1fr; }
+.brand .name { font-size: 1.42rem; }
+.topbar {
+padding: 12px 14px;
+align-items: flex-start;
+gap: 8px;
+}
+
+.summary-banner {
+grid-template-columns: 1fr;
+}
+
+.summary-main {
+flex-direction: column;
+align-items: flex-start;
+}
+
+.kv-grid {
+grid-template-columns: 1fr;
+}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+<div class="brand">
+  <div class="logo" aria-hidden="true">
+    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pharosBolt" x1="18" y1="10" x2="42" y2="50" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#ffd089" />
+          <stop offset="55%" stop-color="#ff9f43" />
+          <stop offset="100%" stop-color="#ff7a1a" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M34 6L18 33H29L24 58L46 27H34L34 6Z"
+        fill="url(#pharosBolt)"
+      />
+      <path
+        d="M34 6L18 33H29L24 58L46 27H34L34 6Z"
+        stroke="rgba(255,255,255,0.18)"
+        stroke-width="1.2"
+      />
+    </svg>
+  </div>
+  <div class="name">PHAROS</div>
+</div>
+<div class="author">by Adnan</div>
+</header>
+
+<main class="container">
+<section class="hero">
+<h1>Dashboard de triage email</h1>
+
+<div class="stats-grid">
+<div class="stat-card">
+<div class="label">Total</div>
+<div class="value" id="total-count">0</div>
+</div>
+<div class="stat-card stat-low">
+<div class="label">Low</div>
+<div class="value" id="low-count">0</div>
+</div>
+<div class="stat-card stat-medium">
+<div class="label">Medium</div>
+<div class="value" id="medium-count">0</div>
+</div>
+<div class="stat-card stat-high">
+<div class="label">High</div>
+<div class="value" id="high-count">0</div>
+</div>
+<div class="stat-card stat-critical">
+<div class="label">Critical</div>
+<div class="value" id="critical-count">0</div>
+</div>
+</div>
+
+<div class="actions">
+<h3>Actions</h3>
+<div class="btn-row">
+<button id="refresh-btn">Rafraîchir</button>
+<button id="imap-run-btn">Lancer une analyse IMAP</button>
+</div>
+<div class="meta" id="app-meta"></div>
+<div class="status-line" id="status-line"></div>
+</div>
+</section>
+
+<div class="tabs">
+<button class="tab-btn active" data-tab="safe-panel">Mails normaux</button>
+<button class="tab-btn" data-tab="malicious-panel">Mails suspects / phishing</button>
+<button class="tab-btn" data-tab="manual-panel">Analyse manuelle .eml</button>
+</div>
+
+<section class="panel active" id="safe-panel">
+<h2>Emails probablement sains</h2>
+<div class="content-grid">
+<div class="analysis-list" id="safe-list">
+<div class="empty">Aucune analyse du jour.</div>
+</div>
+<aside class="detail-box">
+<div class="detail-title">Détail technique</div>
+<div class="detail-empty" id="safe-detail">
+Clique sur un mail pour afficher les informations techniques détaillées.
+</div>
+</aside>
+</div>
+</section>
+
+<section class="panel" id="malicious-panel">
+<h2>Emails suspects / malveillants</h2>
+<div class="content-grid">
+<div class="analysis-list" id="malicious-list">
+<div class="empty">Aucune analyse du jour.</div>
+</div>
+<aside class="detail-box">
+<div class="detail-title">Détail technique</div>
+<div class="detail-empty" id="malicious-detail">
+Clique sur un mail pour afficher les informations techniques détaillées.
+</div>
+</aside>
+</div>
+</section>
+
+<section class="panel" id="manual-panel">
+<div class="manual-grid">
+<div class="upload-box">
+<h3>Déposer un fichier .eml</h3>
+<div class="upload-drop">
+<p>Dépose ici un email exporté en .eml pour une analyse ciblée.</p>
+<input type="file" id="manual-file" accept=".eml" />
+<button id="manual-analyze-btn">Analyser maintenant</button>
+</div>
+</div>
+
+<div class="result-box">
+<h3>Résultat manuel</h3>
+<div id="manual-result" class="detail-empty">
+Aucun résultat pour le moment.
+</div>
+</div>
+</div>
+</section>
+</main>
+
+<div class="preview-modal" id="preview-modal" aria-hidden="true">
+<div class="preview-dialog" role="dialog" aria-modal="true" aria-labelledby="preview-title">
+<div class="preview-header">
+<div class="preview-title" id="preview-title">Prévisualisation sécurisée</div>
+<button id="preview-close-btn" type="button">Fermer</button>
+</div>
+<div class="preview-body" id="preview-body">
+<div class="detail-empty">Aucune prévisualisation chargée.</div>
+</div>
+</div>
+</div>
+
+<script>
+let CURRENT_DETAIL_TARGET = null;
+let CURRENT_ANALYSIS_ID = null;
+let CURRENT_LIST_CONTAINER = null;
+
+function escapeHtml(value) {
+return String(value ?? "")
+.replaceAll("&", "&amp;")
+.replaceAll("<", "&lt;")
+.replaceAll(">", "&gt;")
+.replaceAll('"', "&quot;")
+.replaceAll("'", "&#039;");
+}
+
+function severityClass(level) {
+const v = String(level || "").toUpperCase();
+if (v === "LOW") return "severity-pill severity-low";
+if (v === "MEDIUM") return "severity-pill severity-medium";
+if (v === "HIGH") return "severity-pill severity-high";
+if (v === "CRITICAL") return "severity-pill severity-critical";
+return "severity-pill";
+}
+
+function summaryTheme(level) {
+const v = String(level || "").toUpperCase();
+if (v === "LOW") return "low";
+if (v === "MEDIUM") return "medium";
+if (v === "HIGH") return "high";
+return "";
+}
+
+function authClass(value) {
+const v = String(value || "none").toLowerCase();
+if (v === "pass") return "auth-pill auth-pass";
+if (v === "fail" || v === "softfail") return "auth-pill auth-fail";
+return "auth-pill auth-none";
+}
+
+function setStatus(message) {
+const el = document.getElementById("status-line");
+if (el) el.textContent = message || "";
+}
+
+function arrayToChips(arr, emptyText = "Aucun") {
+if (!Array.isArray(arr) || arr.length === 0) {
+return `<div class="kv-value">${escapeHtml(emptyText)}</div>`;
+}
+return `<div class="chips">${arr.map(v => `<span class="chip">${escapeHtml(v)}</span>`).join("")}</div>`;
+}
+
+function extractRoutingIps(data) {
+const ips = [];
+const summaryIp = data?.email_summary?.originating_ip;
+if (summaryIp) ips.push(summaryIp);
+
+const obsIps = Array.isArray(data?.observables?.ips) ? data.observables.ips : [];
+for (const ip of obsIps) {
+if (ip && !ips.includes(ip)) ips.push(ip);
+}
+return ips;
+}
+
+function renderPreviewButton(analysisId, attachment) {
+const kind = String(attachment?.preview_kind || "blocked");
+
+if (!analysisId) {
+return `<div class="preview-note">Prévisualisation indisponible sans identifiant d'analyse.</div>`;
+}
+
+if (kind === "image" || kind === "text" || kind === "pdf") {
+return `
+<button
+class="preview-btn"
+onclick="openAttachmentPreview(${Number(analysisId)}, '${escapeHtml(attachment.sha256 || "")}', '${escapeHtml(kind)}', '${escapeHtml(attachment.filename || "pièce jointe")}')"
+>
+Prévisualisation sécurisée
+</button>
+`;
+}
+
+return `<div class="preview-note">Prévisualisation désactivée pour ce type de fichier.</div>`;
+}
+
+function renderFeedbackActions(analysisId) {
+if (!analysisId) return "";
+return `
+<div class="feedback-actions">
+<button class="feedback-btn ok" onclick="sendAnalysisFeedback(${Number(analysisId)}, 'false_positive')">Faux positif</button>
+<button class="feedback-btn warn" onclick="sendAnalysisFeedback(${Number(analysisId)}, 'false_negative')">Faux négatif</button>
+<button class="feedback-btn" onclick="sendAnalysisFeedback(${Number(analysisId)}, 'legit')">Légitime</button>
+<button class="feedback-btn danger" onclick="sendAnalysisFeedback(${Number(analysisId)}, 'malicious')">Malveillant</button>
+</div>
+`;
+}
+
+function renderReputationBlock(rep) {
+if (!rep) {
+return `<div class="kv-value">Aucune réputation locale.</div>`;
+}
+
+const f = rep.features || {};
+const senderRep = rep.sender_rep || {};
+const domainRep = rep.domain_rep || {};
+
+return `
+<div class="kv-grid">
+<div class="kv-label">Root domain</div>
+<div class="kv-value">${escapeHtml(rep.root_domain || "-")}</div>
+
+<div class="kv-label">Seen count</div>
+<div class="kv-value">${escapeHtml(f.seen_count ?? 0)}</div>
+
+<div class="kv-label">Benign ratio</div>
+<div class="kv-value">${escapeHtml(f.benign_ratio ?? 0)}</div>
+
+<div class="kv-label">Malicious ratio</div>
+<div class="kv-value">${escapeHtml(f.malicious_ratio ?? 0)}</div>
+
+<div class="kv-label">Historique établi</div>
+<div class="kv-value">${f.is_established_sender ? "Oui" : "Non"}</div>
+
+<div class="kv-label">Historique bénin</div>
+<div class="kv-value">${f.is_historically_benign ? "Oui" : "Non"}</div>
+
+<div class="kv-label">Historique risque</div>
+<div class="kv-value">${f.is_historically_risky ? "Oui" : "Non"}</div>
+
+<div class="kv-label">Sender legit</div>
+<div class="kv-value">${escapeHtml(senderRep.legit_count ?? 0)}</div>
+
+<div class="kv-label">Sender malicious</div>
+<div class="kv-value">${escapeHtml(senderRep.malicious_count ?? 0)}</div>
+
+<div class="kv-label">Domain legit</div>
+<div class="kv-value">${escapeHtml(domainRep.legit_count ?? 0)}</div>
+
+<div class="kv-label">Domain malicious</div>
+<div class="kv-value">${escapeHtml(domainRep.malicious_count ?? 0)}</div>
+</div>
+`;
+}
+
+function renderTechnicalDetail(data, analysisId = null) {
+const summary = data?.email_summary || {};
+const score = data?.score || {};
+const observables = data?.observables || {};
+const reputation = data?.reputation || null;
+const theme = summaryTheme(score.level);
+const routingIps = extractRoutingIps(data);
+
+const redirects = Array.isArray(data?.redirect_chain)
+? data.redirect_chain
+: (Array.isArray(data?.redirects) ? data.redirects : []);
+
+return `
+<div class="summary-banner ${theme}">
+  <div class="summary-main">
+    <div class="score-box">${escapeHtml(score.score ?? 0)}</div>
+    <div class="summary-text">
+      <div class="summary-level">${escapeHtml(score.level || "N/A")}</div>
+      <div class="summary-verdict">${escapeHtml(score.verdict || "Aucun verdict disponible.")}</div>
+      <div class="score-submeta">
+        <span class="score-mini">Risk score : ${escapeHtml(score.risk_score ?? 0)}</span>
+        <span class="score-mini">Benign score : ${escapeHtml(score.benign_score ?? 0)}</span>
+        ${data?.filename ? `<span class="score-mini">Analyse : ${escapeHtml(data.filename)}</span>` : ""}
+      </div>
+    </div>
+  </div>
+  <div class="${severityClass(score.level)}">${escapeHtml(score.level || "N/A")}</div>
+</div>
+
+${renderFeedbackActions(analysisId)}
+
+<div class="mini-tabs" data-tabs>
+  <span class="mini-tab active" data-detail-tab="summary">Summary</span>
+  <span class="mini-tab" data-detail-tab="observables">Observables</span>
+  <span class="mini-tab" data-detail-tab="domains">Domains</span>
+  <span class="mini-tab" data-detail-tab="redirects">Redirects</span>
+  <span class="mini-tab" data-detail-tab="attachments">Attachments</span>
+  <span class="mini-tab" data-detail-tab="indicators">Indicators</span>
+</div>
+
+<div class="detail-sections">
+  <div class="detail-section active" data-detail-section="summary">
+    <div class="detail-grid">
+      <div>
+        <div class="section-card">
+          <h4>Email Headers</h4>
+          <div class="kv-grid">
+            <div class="kv-label">Subject</div>
+            <div class="kv-value">${escapeHtml(summary.subject || "(sans sujet)")}</div>
+
+            <div class="kv-label">From</div>
+            <div class="kv-value">${escapeHtml(summary.from_addr || "-")}</div>
+
+            <div class="kv-label">To</div>
+            <div class="kv-value">${escapeHtml(summary.to_addr || "-")}</div>
+
+            <div class="kv-label">Reply-To</div>
+            <div class="kv-value">${escapeHtml(summary.reply_to || "-")}</div>
+
+            <div class="kv-label">Return-Path</div>
+            <div class="kv-value">${escapeHtml(summary.return_path || "-")}</div>
+
+            <div class="kv-label">Date</div>
+            <div class="kv-value">${escapeHtml(summary.date || "-")}</div>
+
+            <div class="kv-label">Message-ID</div>
+            <div class="kv-value">${escapeHtml(summary.message_id || "-")}</div>
+
+            <div class="kv-label">X-Mailer</div>
+            <div class="kv-value">${escapeHtml(summary.x_mailer || "-")}</div>
+
+            <div class="kv-label">Originating IP</div>
+            <div class="kv-value">${escapeHtml(summary.originating_ip || "Non trouvée")}</div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h4>Routing (Received headers)</h4>
+          ${arrayToChips(routingIps, "Aucune IP de routage")}
+        </div>
+      </div>
+
+      <div>
+        <div class="section-card">
+          <h4>Authentication</h4>
+          <div class="auth-box">
+            <span class="${authClass(summary.spf)}">SPF: ${escapeHtml((summary.spf || "none").toUpperCase())}</span>
+            <span class="${authClass(summary.dkim)}">DKIM: ${escapeHtml((summary.dkim || "none").toUpperCase())}</span>
+            <span class="${authClass(summary.dmarc)}">DMARC: ${escapeHtml((summary.dmarc || "none").toUpperCase())}</span>
+          </div>
+          <div class="auth-help">
+            SPF vérifie le serveur expéditeur.<br>
+            DKIM vérifie l’intégrité du message.<br>
+            DMARC applique la politique d’alignement du domaine.
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h4>Réputation locale</h4>
+          ${renderReputationBlock(reputation)}
+        </div>
+
+        <div class="section-card">
+          <h4>Verdict</h4>
+          <div class="kv-value">${escapeHtml(score.verdict || "Aucun verdict disponible.")}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-section" data-detail-section="observables">
+    <div class="detail-grid">
+      <div>
+        <div class="section-card">
+          <h4>URLs</h4>
+          ${arrayToChips(observables.urls, "Aucune URL")}
+        </div>
+
+        <div class="section-card">
+          <h4>Domaines</h4>
+          ${arrayToChips(observables.domains, "Aucun domaine externe")}
+        </div>
+
+        <div class="section-card">
+          <h4>IPs</h4>
+          ${arrayToChips(observables.ips, "Aucune IP publique")}
+        </div>
+
+        <div class="section-card">
+          <h4>Emails</h4>
+          ${arrayToChips(observables.emails, "Aucun autre email")}
+        </div>
+      </div>
+
+      <div>
+        <div class="section-card">
+          <h4>Compteurs</h4>
+          <div class="chips">
+            <span class="chip">url_count: ${escapeHtml(observables.url_count ?? 0)}</span>
+            <span class="chip">external_domain_count: ${escapeHtml(observables.external_domain_count ?? 0)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-section" data-detail-section="domains">
+    <div class="detail-grid">
+      <div>
+        <div class="section-card">
+          <h4>Domaines observés</h4>
+          ${arrayToChips(observables.domains, "Aucun domaine externe")}
+        </div>
+      </div>
+
+      <div>
+        <div class="section-card">
+          <h4>Analyse domaine / VirusTotal</h4>
+          ${
+            Array.isArray(data?.domain_analysis) && data.domain_analysis.length
+            ? data.domain_analysis.map(d => `
+              <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(85,132,206,0.12);">
+                <div class="kv-value" style="font-weight:800;margin-bottom:6px;">${escapeHtml(d.domain || "Domaine")}</div>
+                <div class="kv-grid">
+                  <div class="kv-label">Créé le</div>
+                  <div class="kv-value">${escapeHtml(d.created || "Inconnu")}</div>
+
+                  <div class="kv-label">Âge</div>
+                  <div class="kv-value">${escapeHtml(d.age_days ?? "N/A")} jour(s)</div>
+
+                  <div class="kv-label">Registrar</div>
+                  <div class="kv-value">${escapeHtml(d.registrar || "Inconnu")}</div>
+
+                  <div class="kv-label">DNS</div>
+                  <div class="kv-value">${d.dns_resolves || d.dns_valid ? "Résout" : "Ne résout pas"}</div>
+
+                  <div class="kv-label">VirusTotal</div>
+                  <div class="kv-value">${
+                    d.vt_total && d.vt_total > 0
+                    ? `${escapeHtml(d.vt_malicious ?? 0)}/${escapeHtml(d.vt_total)} moteur(s) malveillants`
+                    : "Aucune donnée VT"
+                  }</div>
+                </div>
+                <div style="margin-top:8px;">
+                  ${
+                    Array.isArray(d.flags) && d.flags.length
+                    ? `<ul class="simple-list">${d.flags.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>`
+                    : `<div class="kv-value">Aucun flag domaine.</div>`
+                  }
+                </div>
+              </div>
+            `).join("")
+            : `<div class="kv-value">Aucune analyse domaine.</div>`
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-section" data-detail-section="redirects">
+    <div class="section-card">
+      <h4>Chaînes de redirection</h4>
+      ${
+        redirects.length
+        ? redirects.map(r => `
+          <div class="redirect-card">
+            <div class="redirect-title">${escapeHtml(r.url || r.final_url || "Redirection")}</div>
+            <div class="redirect-meta">
+              ${r.final_url ? `Final URL : ${escapeHtml(r.final_url)}<br>` : ""}
+              ${r.status_code ? `Status : ${escapeHtml(r.status_code)}<br>` : ""}
+              ${r.redirect_count != null ? `Nombre de redirections : ${escapeHtml(r.redirect_count)}` : ""}
+            </div>
+          </div>
+        `).join("")
+        : `<div class="kv-value">Aucune redirection détectée.</div>`
+      }
+    </div>
+  </div>
+
+  <div class="detail-section" data-detail-section="attachments">
+    <div class="section-card">
+      <h4>Pièces jointes</h4>
+      ${
+        Array.isArray(data?.attachments) && data.attachments.length
+        ? data.attachments.map(a => `
+          <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(85,132,206,0.12);">
+            <div class="kv-value" style="font-weight:800;margin-bottom:6px;">${escapeHtml(a.filename || "Pièce jointe")}</div>
+            <div class="kv-grid">
+              <div class="kv-label">Type</div>
+              <div class="kv-value">${escapeHtml(a.content_type || "Inconnu")}</div>
+
+              <div class="kv-label">Taille</div>
+              <div class="kv-value">${escapeHtml(a.size ?? 0)} octets</div>
+
+              <div class="kv-label">MD5</div>
+              <div class="kv-value">${escapeHtml(a.md5 || "-")}</div>
+
+              <div class="kv-label">SHA256</div>
+              <div class="kv-value">${escapeHtml(a.sha256 || "-")}</div>
+
+              <div class="kv-label">Preview</div>
+              <div class="kv-value">${escapeHtml(a.preview_kind || "blocked")}</div>
+            </div>
+            <div style="margin-top:10px;">
+              ${renderPreviewButton(analysisId, a)}
+            </div>
+          </div>
+        `).join("")
+        : `<div class="kv-value">Aucune pièce jointe.</div>`
+      }
+    </div>
+  </div>
+
+  <div class="detail-section" data-detail-section="indicators">
+    <div class="detail-grid">
+      <div>
+        <div class="section-card">
+          <h4>Indicators</h4>
+          ${
+            Array.isArray(score.indicators) && score.indicators.length
+            ? `<ul class="simple-list">${score.indicators.map(i => `<li>${escapeHtml(i)}</li>`).join("")}</ul>`
+            : `<div class="kv-value">Aucun indicateur majeur.</div>`
+          }
+        </div>
+      </div>
+
+      <div>
+        <div class="section-card">
+          <h4>Strong signals</h4>
+          ${
+            Array.isArray(score?.strong_signals) && score.strong_signals.length
+            ? `<ul class="simple-list">${score.strong_signals.map(i => `<li>${escapeHtml(i)}</li>`).join("")}</ul>`
+            : `<div class="kv-value">Aucun indicateur.</div>`
+          }
+        </div>
+
+        <div class="section-card">
+          <h4>Benign signals</h4>
+          ${
+            Array.isArray(score?.benign_signals) && score.benign_signals.length
+            ? `<ul class="simple-list">${score.benign_signals.map(i => `<li>${escapeHtml(i)}</li>`).join("")}</ul>`
+            : `<div class="kv-value">Aucun signal bénin.</div>`
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+}
+
+function setupDetailTabs(container) {
+if (!container) return;
+
+const tabs = container.querySelectorAll("[data-detail-tab]");
+const sections = container.querySelectorAll("[data-detail-section]");
+
+tabs.forEach(tab => {
+tab.addEventListener("click", () => {
+const target = tab.getAttribute("data-detail-tab");
+
+tabs.forEach(t => t.classList.remove("active"));
+sections.forEach(s => s.classList.remove("active"));
+
+tab.classList.add("active");
+
+const section = container.querySelector(`[data-detail-section="${target}"]`);
+if (section) {
+section.classList.add("active");
+}
+});
+});
+}
+
+async function loadDetail(id, targetId, listContainerId) {
+try {
+CURRENT_DETAIL_TARGET = targetId;
+CURRENT_ANALYSIS_ID = Number(id);
+CURRENT_LIST_CONTAINER = listContainerId;
+
+const resp = await fetch(`/api/analyses/${id}`);
+const data = await resp.json();
+
+const target = document.getElementById(targetId);
+target.innerHTML = renderTechnicalDetail(data, Number(id));
+setupDetailTabs(target);
+
+if (listContainerId) {
+document.querySelectorAll(`#${listContainerId} .analysis-item`).forEach(card => {
+card.classList.remove("active");
+});
+const selected = document.querySelector(`#${listContainerId} .analysis-item[data-id="${id}"]`);
+if (selected) selected.classList.add("active");
+}
+} catch (err) {
+document.getElementById(targetId).innerHTML =
+`<div class="detail-empty">Erreur lors du chargement du détail.</div>`;
+}
+}
+
+function renderAnalysisList(containerId, items, emptyText, detailTargetId) {
+const el = document.getElementById(containerId);
+if (!el) return;
+
+if (!Array.isArray(items) || items.length === 0) {
+el.innerHTML = `<div class="empty">${escapeHtml(emptyText)}</div>`;
+return;
+}
+
+el.innerHTML = items.map(item => `
+<article class="analysis-item" data-id="${item.id}">
+<div class="analysis-top">
+<div class="analysis-main">
+<div class="subject">${escapeHtml(item.subject || "(sans sujet)")}</div>
+<div class="from">${escapeHtml(item.from_addr || "")}</div>
+</div>
+<div class="${severityClass(item.risk_level)}">${escapeHtml(item.risk_level || "N/A")}</div>
+</div>
+<div class="analysis-meta">
+<span>Score : ${escapeHtml(item.risk_score ?? "N/A")}</span>
+<span>Fichier : ${escapeHtml(item.filename || "")}</span>
+<span>Date : ${escapeHtml(item.analyzed_at || "")}</span>
+</div>
+</article>
+`).join("");
+
+el.querySelectorAll(".analysis-item").forEach(card => {
+card.addEventListener("click", () => {
+const id = card.getAttribute("data-id");
+loadDetail(id, detailTargetId, containerId);
+});
+});
+}
+
+async function refreshDashboard() {
+try {
+setStatus("Chargement des analyses du jour...");
+const statusResp = await fetch("/api/status");
+const statusData = await statusResp.json();
+const stats = statusData.stats || {};
+
+document.getElementById("total-count").textContent = stats.total ?? 0;
+document.getElementById("low-count").textContent = stats.low ?? 0;
+document.getElementById("medium-count").textContent = stats.medium ?? 0;
+document.getElementById("high-count").textContent = stats.high ?? 0;
+document.getElementById("critical-count").textContent = stats.critical ?? 0;
+
+document.getElementById("app-meta").innerHTML =
+`Application : ${escapeHtml(statusData.app || "PHAROS")}<br>` +
+`Version : ${escapeHtml(statusData.version || "")}<br>` +
+`Mode : ${escapeHtml(statusData.mode || "today_only")}<br>` +
+`IMAP activé : ${statusData.imap_enabled ? "oui" : "non"}<br>` +
+`Analyses du jour : ${stats.total ?? 0}`;
+
+const safeResp = await fetch("/api/analyses?group=safe&limit=50");
+const safeData = await safeResp.json();
+
+const maliciousResp = await fetch("/api/analyses?group=malicious&limit=50");
+const maliciousData = await maliciousResp.json();
+
+renderAnalysisList("safe-list", safeData, "Aucune analyse.", "safe-detail");
+renderAnalysisList("malicious-list", maliciousData, "Aucune analyse.", "malicious-detail");
+
+document.getElementById("safe-detail").innerHTML =
+`<div class="detail-empty">Clique sur un mail pour afficher les informations techniques détaillées.</div>`;
+document.getElementById("malicious-detail").innerHTML =
+`<div class="detail-empty">Clique sur un mail pour afficher les informations techniques détaillées.</div>`;
+
+setStatus("Dashboard du jour mis à jour.");
+} catch (err) {
+console.error(err);
+setStatus("Erreur lors du chargement du dashboard.");
+}
+}
+
+async function runImapOnce() {
+try {
+setStatus("Collecte IMAP en cours...");
+const resp = await fetch("/api/collector/run-once", { method: "POST" });
+const data = await resp.json();
+
+if (!data.ok) {
+setStatus(data.message || "Collecte IMAP refusée.");
+return;
+}
+
+if ((data.collected_count ?? 0) === 0) {
+setStatus("Collecte terminée : aucun nouveau mail non lu du jour.");
+} else {
+setStatus(`Collecte terminée : ${data.collected_count} mail(s) analysé(s).`);
+}
+
+await refreshDashboard();
+} catch (err) {
+console.error(err);
+setStatus("Erreur lors de la collecte IMAP.");
+}
+}
+
+async function runManualAnalysis() {
+const input = document.getElementById("manual-file");
+const file = input?.files?.[0];
+
+if (!file) {
+setStatus("Sélectionne un fichier .eml d'abord.");
+return;
+}
+
+const formData = new FormData();
+formData.append("file", file);
+
+try {
+setStatus("Analyse manuelle en cours...");
+const resp = await fetch("/analyze", { method: "POST", body: formData });
+const data = await resp.json();
+
+if (!resp.ok) {
+setStatus(data.detail || "Erreur pendant l'analyse manuelle.");
+return;
+}
+
+const target = document.getElementById("manual-result");
+target.innerHTML = renderTechnicalDetail(data, data.analysis_id || null);
+setupDetailTabs(target);
+
+setStatus("Analyse manuelle terminée.");
+await refreshDashboard();
+} catch (err) {
+console.error(err);
+setStatus("Erreur pendant l'analyse manuelle.");
+}
+}
+
+async function sendAnalysisFeedback(analysisId, label) {
+try {
+const res = await fetch(`/api/analyses/${analysisId}/feedback`, {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({ label })
+});
+
+const data = await res.json();
+
+if (!res.ok) {
+throw new Error(data.detail || "Impossible d'enregistrer le feedback");
+}
+
+setStatus(`Feedback enregistré : ${label}`);
+await refreshDashboard();
+
+if (CURRENT_DETAIL_TARGET && CURRENT_ANALYSIS_ID === Number(analysisId)) {
+await loadDetail(analysisId, CURRENT_DETAIL_TARGET, CURRENT_LIST_CONTAINER);
+} else {
+const detailRes = await fetch(`/api/analyses/${analysisId}`);
+const detailData = await detailRes.json();
+const manualTarget = document.getElementById("manual-result");
+manualTarget.innerHTML =
+renderTechnicalDetail({ ...detailData, analysis_id: analysisId }, analysisId);
+setupDetailTabs(manualTarget);
+}
+} catch (err) {
+console.error(err);
+setStatus(`Erreur feedback: ${err.message}`);
+}
+}
+
+function openAttachmentPreview(analysisId, sha256, kind, filename) {
+const modal = document.getElementById("preview-modal");
+const title = document.getElementById("preview-title");
+const body = document.getElementById("preview-body");
+
+title.textContent = `Prévisualisation — ${filename || "pièce jointe"}`;
+
+if (kind === "image") {
+const url = `/api/analyses/${analysisId}/attachments/${encodeURIComponent(sha256)}/preview`;
+body.innerHTML = `<img class="preview-image" src="${url}" alt="${escapeHtml(filename || "image")}" />`;
+} else if (kind === "text") {
+const url = `/api/analyses/${analysisId}/attachments/${encodeURIComponent(sha256)}/preview`;
+body.innerHTML = `<iframe class="preview-frame" src="${url}" sandbox="" referrerpolicy="no-referrer"></iframe>`;
+} else if (kind === "pdf") {
+const viewerUrl =
+`/pdf-viewer?analysis_id=${encodeURIComponent(analysisId)}` +
+`&sha256=${encodeURIComponent(sha256)}` +
+`&filename=${encodeURIComponent(filename || "document.pdf")}`;
+
+body.innerHTML = `<iframe class="preview-frame" src="${viewerUrl}" referrerpolicy="no-referrer"></iframe>`;
+} else {
+body.innerHTML = `<div class="detail-empty">Prévisualisation désactivée pour ce type de fichier.</div>`;
+}
+
+modal.classList.add("open");
+modal.setAttribute("aria-hidden", "false");
+}
+
+function closeAttachmentPreview() {
+document.getElementById("preview-modal").classList.remove("open");
+document.getElementById("preview-modal").setAttribute("aria-hidden", "true");
+document.getElementById("preview-title").textContent = "Prévisualisation sécurisée";
+document.getElementById("preview-body").innerHTML =
+`<div class="detail-empty">Aucune prévisualisation chargée.</div>`;
+}
+
+function setupTabs() {
+const buttons = document.querySelectorAll(".tab-btn");
+const panels = document.querySelectorAll(".panel");
+
+buttons.forEach(btn => {
+btn.addEventListener("click", () => {
+buttons.forEach(b => b.classList.remove("active"));
+panels.forEach(p => p.classList.remove("active"));
+
+btn.classList.add("active");
+const target = document.getElementById(btn.dataset.tab);
+if (target) target.classList.add("active");
+});
+});
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+setupTabs();
+refreshDashboard();
+
+document.getElementById("refresh-btn")?.addEventListener("click", refreshDashboard);
+document.getElementById("imap-run-btn")?.addEventListener("click", runImapOnce);
+document.getElementById("manual-analyze-btn")?.addEventListener("click", runManualAnalysis);
+
+document.getElementById("preview-close-btn")?.addEventListener("click", closeAttachmentPreview);
+document.getElementById("preview-modal")?.addEventListener("click", (event) => {
+if (event.target.id === "preview-modal") closeAttachmentPreview();
+});
+
+document.addEventListener("keydown", (event) => {
+if (event.key === "Escape" && document.getElementById("preview-modal")?.classList.contains("open")) {
+closeAttachmentPreview();
+}
+});
+});
+</script>
+</body>
+</html>
