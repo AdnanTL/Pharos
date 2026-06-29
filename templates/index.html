@@ -837,6 +837,47 @@ overflow-wrap: anywhere;
 word-break: break-word;
 }
 
+.ip-map-frame {
+width: 100%;
+height: 260px;
+border: 1px solid var(--line);
+border-radius: 12px;
+background: #07111f;
+}
+
+.map-links {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+margin-top: 10px;
+}
+
+.map-link {
+display: inline-flex;
+align-items: center;
+padding: 8px 12px;
+border-radius: 10px;
+border: 1px solid rgba(91, 143, 220, 0.22);
+background: #102543;
+color: #dce9ff;
+font-size: 0.88rem;
+font-weight: 700;
+text-decoration: none;
+transition: .18s ease;
+}
+
+.map-link:hover {
+background: #17345d;
+transform: translateY(-1px);
+}
+
+.map-note {
+color: var(--muted);
+font-size: 0.88rem;
+line-height: 1.45;
+margin-top: 10px;
+}
+
 .empty { color: var(--muted); }
 
 @media (max-width: 1180px) {
@@ -1168,6 +1209,167 @@ return `
 `;
 }
 
+function pickIpAnalysis(data) {
+const list = Array.isArray(data?.ip_analysis) ? data.ip_analysis : [];
+if (list.length > 0) return list[0];
+return null;
+}
+
+function buildOsmEmbedUrl(lat, lon, zoom = 11) {
+const latNum = Number(lat);
+const lonNum = Number(lon);
+
+if (!Number.isFinite(latNum) || !Number.isFinite(lonNum)) {
+return null;
+}
+
+const delta = 0.12;
+const left = lonNum - delta;
+const right = lonNum + delta;
+const top = latNum + delta;
+const bottom = latNum - delta;
+
+return `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(left)},${encodeURIComponent(bottom)},${encodeURIComponent(right)},${encodeURIComponent(top)}&layer=mapnik&marker=${encodeURIComponent(latNum)},${encodeURIComponent(lonNum)}`;
+}
+
+function buildOsmViewUrl(lat, lon, zoom = 11) {
+const latNum = Number(lat);
+const lonNum = Number(lon);
+
+if (!Number.isFinite(latNum) || !Number.isFinite(lonNum)) {
+return null;
+}
+
+return `https://www.openstreetmap.org/?mlat=${encodeURIComponent(latNum)}&mlon=${encodeURIComponent(lonNum)}#map=${encodeURIComponent(zoom)}/${encodeURIComponent(latNum)}/${encodeURIComponent(lonNum)}`;
+}
+
+function renderIpLocationSection(data) {
+const ipInfo = pickIpAnalysis(data);
+const routingIps = extractRoutingIps(data);
+const fallbackIp = routingIps.length ? routingIps[0] : (data?.email_summary?.originating_ip || null);
+
+if (!ipInfo && !fallbackIp) {
+return `
+<div class="detail-grid">
+  <div>
+    <div class="section-card">
+      <h4>Localisation IP</h4>
+      <div class="kv-value">Aucune donnée de localisation IP disponible.</div>
+    </div>
+  </div>
+</div>
+`;
+}
+
+const ip = ipInfo?.ip || fallbackIp || "-";
+const country = ipInfo?.country || "-";
+const region = ipInfo?.region || "-";
+const city = ipInfo?.city || "-";
+const org = ipInfo?.org || "-";
+const isp = ipInfo?.isp || "-";
+const asn = ipInfo?.asn || "-";
+const hostname = ipInfo?.hostname || "-";
+const connectionType = ipInfo?.connection_type || "-";
+const lat = ipInfo?.lat;
+const lon = ipInfo?.lon;
+
+const mapUrl = buildOsmEmbedUrl(lat, lon, 11);
+const viewUrl = buildOsmViewUrl(lat, lon, 11);
+
+return `
+<div class="detail-grid">
+  <div>
+    <div class="section-card">
+      <h4>Informations de localisation</h4>
+      <div class="kv-grid">
+        <div class="kv-label">IP</div>
+        <div class="kv-value">${escapeHtml(ip)}</div>
+
+        <div class="kv-label">Pays</div>
+        <div class="kv-value">${escapeHtml(country)}</div>
+
+        <div class="kv-label">Région</div>
+        <div class="kv-value">${escapeHtml(region)}</div>
+
+        <div class="kv-label">Ville</div>
+        <div class="kv-value">${escapeHtml(city)}</div>
+
+        <div class="kv-label">Latitude</div>
+        <div class="kv-value">${escapeHtml(lat ?? "-")}</div>
+
+        <div class="kv-label">Longitude</div>
+        <div class="kv-value">${escapeHtml(lon ?? "-")}</div>
+
+        <div class="kv-label">Organisation</div>
+        <div class="kv-value">${escapeHtml(org)}</div>
+
+        <div class="kv-label">FAI / ISP</div>
+        <div class="kv-value">${escapeHtml(isp)}</div>
+
+        <div class="kv-label">ASN</div>
+        <div class="kv-value">${escapeHtml(asn)}</div>
+
+        <div class="kv-label">Reverse DNS</div>
+        <div class="kv-value">${escapeHtml(hostname)}</div>
+
+        <div class="kv-label">Type</div>
+        <div class="kv-value">${escapeHtml(connectionType)}</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h4>Carte</h4>
+      ${
+        mapUrl
+        ? `
+          <iframe
+            class="ip-map-frame"
+            src="${mapUrl}"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            sandbox="allow-scripts allow-same-origin"
+            title="Carte de localisation IP"
+          ></iframe>
+          <div class="map-links">
+            ${viewUrl ? `<a class="map-link" href="${viewUrl}" target="_blank" rel="noopener noreferrer">Ouvrir dans OpenStreetMap</a>` : ""}
+          </div>
+          <div class="map-note">
+            Localisation approximative basée sur l’IP, souvent au niveau ville ou opérateur.
+          </div>
+        `
+        : `
+          <div class="kv-value">Aucune coordonnée disponible pour afficher la carte.</div>
+        `
+      }
+    </div>
+  </div>
+
+  <div>
+    <div class="section-card">
+      <h4>Flags IP</h4>
+      ${
+        Array.isArray(ipInfo?.flags) && ipInfo.flags.length
+        ? `<ul class="simple-list">${ipInfo.flags.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>`
+        : `<div class="kv-value">Aucun flag IP.</div>`
+      }
+    </div>
+
+    <div class="section-card">
+      <h4>Résumé</h4>
+      <div class="kv-value">
+        ${escapeHtml(city !== "-" ? city : "Ville inconnue")}
+        ${city !== "-" && country !== "-" ? ", " : ""}
+        ${escapeHtml(country !== "-" ? country : "")}
+      </div>
+      <div class="map-note">
+        Ces informations viennent de l’enrichissement IP du backend et permettent de vérifier rapidement si la géolocalisation fonctionne.
+      </div>
+    </div>
+  </div>
+</div>
+`;
+}
+
 function renderTechnicalDetail(data, analysisId = null) {
 const summary = data?.email_summary || {};
 const score = data?.score || {};
@@ -1203,6 +1405,7 @@ ${renderFeedbackActions(analysisId)}
   <span class="mini-tab active" data-detail-tab="summary">Summary</span>
   <span class="mini-tab" data-detail-tab="observables">Observables</span>
   <span class="mini-tab" data-detail-tab="domains">Domains</span>
+  <span class="mini-tab" data-detail-tab="localisation">Localisation</span>
   <span class="mini-tab" data-detail-tab="redirects">Redirects</span>
   <span class="mini-tab" data-detail-tab="attachments">Attachments</span>
   <span class="mini-tab" data-detail-tab="indicators">Indicators</span>
@@ -1365,6 +1568,10 @@ ${renderFeedbackActions(analysisId)}
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="detail-section" data-detail-section="localisation">
+    ${renderIpLocationSection(data)}
   </div>
 
   <div class="detail-section" data-detail-section="redirects">

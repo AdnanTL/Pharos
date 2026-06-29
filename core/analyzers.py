@@ -75,30 +75,76 @@ async def analyze_domain(domain: str, vt_key: str = "") -> dict:
 
 async def analyze_ip(ip: str, abuseipdb_key: str = "") -> dict:
     result = {
-        "ip":          ip,
-        "country":     None,
-        "city":        None,
-        "org":         None,
-        "abuse_score": 0,
-        "is_tor":      False,
-        "flags":       [],
+        "ip":              ip,
+        "country":         None,
+        "city":            None,
+        "org":             None,
+        "region":          None,
+        "lat":             None,
+        "lon":             None,
+        "hostname":        None,
+        "isp":             None,
+        "asn":             None,
+        "connection_type": None,
+        "abuse_score":     0,
+        "is_tor":          False,
+        "flags":           [],
     }
 
-    # Géolocalisation gratuite via ip-api.com (pas de clé nécessaire)
+    # Géolocalisation IP enrichie
+    # On récupère les infos les plus utiles affichées par des outils type HostIP :
+    # pays, région, ville, coordonnées, FAI/organisation, ASN, reverse DNS.
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(
-                f"http://ip-api.com/json/{ip}?fields=country,city,org,proxy,hosting"
-            )
+        async with httpx.AsyncClient(timeout=10, headers={"User-Agent": "PHAROS/1.0"}) as client:
+            resp = await client.get(f"https://monip.lws.fr/api/{ip}")
+
             if resp.status_code == 200:
                 data = resp.json()
-                result["country"] = data.get("country")
+
+                result["country"] = data.get("country") or data.get("country_name")
+                result["region"]  = data.get("region") or data.get("region_name")
                 result["city"]    = data.get("city")
-                result["org"]     = data.get("org")
-                if data.get("proxy"):
-                    result["flags"].append("L'IP est un proxy/VPN connu")
-                if data.get("hosting"):
-                    result["flags"].append("L'IP appartient à un hébergeur (expéditeur inhabituel)")
+                result["lat"]     = data.get("latitude") or data.get("lat")
+                result["lon"]     = data.get("longitude") or data.get("lon")
+                result["hostname"] = data.get("hostname") or data.get("reverse")
+                result["isp"]      = data.get("isp")
+                result["asn"]      = data.get("asn")
+                result["org"]      = (
+                    data.get("org")
+                    or data.get("organization")
+                    or data.get("isp")
+                )
+
+                isp_org_blob = " ".join(
+                    str(x or "") for x in [
+                        result.get("isp"),
+                        result.get("org"),
+                        result.get("hostname"),
+                        result.get("asn"),
+                    ]
+                ).lower()
+
+                hosting_keywords = [
+                    "hetzner", "ovh", "amazon", "aws", "google", "microsoft",
+                    "azure", "cloudflare", "digitalocean", "linode", "vultr",
+                    "your-server", "datacenter", "server", "hosting"
+                ]
+                proxy_keywords = [
+                    "proxy", "vpn", "tor", "anonymous", "anonymizer"
+                ]
+
+                if any(k in isp_org_blob for k in hosting_keywords):
+                    result["connection_type"] = "Hébergeur / VPN"
+                    result["flags"].append("L'IP appartient à un hébergeur / datacenter connu")
+                else:
+                    result["connection_type"] = "Résidentiel / inconnu"
+
+                if any(k in isp_org_blob for k in proxy_keywords):
+                    result["flags"].append("L'IP semble liée à un proxy / VPN / anonymiseur")
+
+                if result["hostname"] and any(k in result["hostname"].lower() for k in ["static", "clients", "server"]):
+                    result["flags"].append("Le reverse DNS suggère une IP d'hébergeur ou de serveur")
+
     except Exception:
         pass
 
@@ -121,6 +167,9 @@ async def analyze_ip(ip: str, abuseipdb_key: str = "") -> dict:
                         )
                     if result["is_tor"]:
                         result["flags"].append("Nœud de sortie Tor !")
+                        if result["connection_type"] is None:
+                            result["connection_type"] = "Tor"
+
         except Exception:
             pass
 
